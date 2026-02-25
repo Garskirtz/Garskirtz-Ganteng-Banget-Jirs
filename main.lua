@@ -4,7 +4,7 @@
 -- ============================================
 
 -- Ganti USERNAME dan REPO sesuai milik kamu
-local BASE = "https://raw.githubusercontent.com/USERNAME/REPO/main/"
+local BASE = "https://raw.githubusercontent.com/Garskirtz/Garskirtz-Ganteng-Banget-Jirs/main/"
 
 loadstring(game:HttpGet(BASE .. "GUI.lua"))()
 task.wait(1) -- tunggu GUI & _G.AF_GUI siap
