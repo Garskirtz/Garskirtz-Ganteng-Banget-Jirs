@@ -36,7 +36,7 @@ local FS       = function(s) return math.floor(s * SCALE) end
 -- GANTI GAMBAR DI SINI:
 -- Isi dengan rbxassetid://IDKAMU untuk pakai gambar sendiri
 -- ════════════════════════════════════════════════════════════════════════════
-local FLOAT_IMAGE = "rbxassetid://138675271011481" -- default: atom icon biru
+local FLOAT_IMAGE = "rbxassetid://122061428704695" -- default: atom icon biru
 
 -- ── Helpers ──────────────────────────────────────────────────────────────────
 local function fmt(n)
