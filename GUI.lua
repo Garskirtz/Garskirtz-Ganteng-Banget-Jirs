@@ -1,28 +1,24 @@
 -- ============================================
---   Garskirtz Premium UI | FIX VERSION
+--   Garskirtz Premium UI | REVISED STABLE
 -- ============================================
 
-local Players      = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UIS          = game:GetService("UserInputService")
-local RunService   = game:GetService("RunService")
-local player       = Players.LocalPlayer
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
 
--- Hapus UI lama jika ada agar tidak tumpang tindih
-local oldGui = player.PlayerGui:FindFirstChild("PremiumFarm")
-if oldGui then oldGui:Destroy() end
+-- Clean up old UI
+local old = player.PlayerGui:FindFirstChild("GarskirtzPremium")
+if old then old:Destroy() end
 
-_G.AF_moneyStart   = 0
+-- Shared State
+_G.AF_moneyStart = 0
 _G.AF_sessionStart = tick()
 
--- Responsive Scale
-local vp = workspace.CurrentCamera.ViewportSize
-local SCALE = (vp.X < 1000) and 1.2 or 1.0
-local W, H = math.floor(320 * SCALE), math.floor(260 * SCALE)
-
+-- UI Theme
 local C = {
-    bg = Color3.fromRGB(18, 18, 22),
-    card = Color3.fromRGB(28, 28, 34),
+    bg = Color3.fromRGB(15, 15, 18),
+    card = Color3.fromRGB(24, 24, 30),
     accent = Color3.fromRGB(0, 162, 255),
     success = Color3.fromRGB(0, 255, 130),
     danger = Color3.fromRGB(255, 70, 70),
@@ -31,140 +27,139 @@ local C = {
     outline = Color3.fromRGB(45, 45, 55),
 }
 
-local function newInst(cls, props)
-    local o = Instance.new(cls)
-    for k,v in pairs(props) do o[k] = v end
-    return o
-end
+local root = Instance.new("ScreenGui")
+root.Name = "GarskirtzPremium"
+root.IgnoreGuiInset = true
+root.Parent = player.PlayerGui
 
--- ROOT
-local root = newInst("ScreenGui", { Name = "PremiumFarm", Parent = player.PlayerGui, IgnoreGuiInset = true })
+local main = Instance.new("Frame")
+main.Name = "MainFrame"
+main.Size = UDim2.new(0, 320, 0, 260)
+main.Position = UDim2.new(0.5, -160, 0.5, -130)
+main.BackgroundColor3 = C.bg
+main.Parent = root
 
--- MAIN FRAME (Tanpa DimOverlay bermasalah)
-local main = newInst("Frame", {
-    Name = "MainFrame",
-    Size = UDim2.new(0, W, 0, H),
-    Position = UDim2.new(0.5, -W/2, 0.5, -H/2),
-    BackgroundColor3 = C.bg,
-    BorderSizePixel = 0,
-    Parent = root
-})
-newInst("UICorner", { CornerRadius = UDim.new(0, 12), Parent = main })
-newInst("UIStroke", { Color = C.outline, Thickness = 1.5, Parent = main })
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = main
 
--- HEADER
-local title = newInst("TextLabel", {
-    Size = UDim2.new(1, -40, 0, 50),
-    Position = UDim2.new(0, 20, 0, 0),
-    Text = "GARSKIRTZ <font color='#00A2FF'>PRO</font>",
-    RichText = true,
-    TextColor3 = C.text,
-    TextSize = 18,
-    Font = Enum.Font.GothamBold,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    BackgroundTransparency = 1,
-    Parent = main
-})
+local stroke = Instance.new("UIStroke")
+stroke.Color = C.outline
+stroke.Thickness = 1.5
+stroke.Parent = main
 
--- STATUS
-local statusCard = newInst("Frame", {
-    Size = UDim2.new(1, -40, 0, 35),
-    Position = UDim2.new(0, 20, 0, 50),
-    BackgroundColor3 = C.card,
-    Parent = main
-})
-newInst("UICorner", { CornerRadius = UDim.new(0, 8), Parent = statusCard })
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 0, 50)
+title.Position = UDim2.new(0, 20, 0, 0)
+title.Text = "GARSKIRTZ <font color='#00A2FF'>PRO</font>"
+title.RichText = true
+title.TextColor3 = C.text
+title.TextSize = 18
+title.Font = Enum.Font.GothamBold
+title.BackgroundTransparency = 1
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = main
 
-local dot = newInst("Frame", {
-    Size = UDim2.new(0, 8, 0, 8),
-    Position = UDim2.new(0, 12, 0.5, -4),
-    BackgroundColor3 = C.danger,
-    Parent = statusCard
-})
-newInst("UICorner", { CornerRadius = UDim.new(0, 100), Parent = dot })
+-- Status Dot & Text
+local statusCard = Instance.new("Frame")
+statusCard.Size = UDim2.new(1, -40, 0, 35)
+statusCard.Position = UDim2.new(0, 20, 0, 50)
+statusCard.BackgroundColor3 = C.card
+statusCard.Parent = main
+Instance.new("UICorner", statusCard).CornerRadius = UDim.new(0, 8)
 
-local statusLbl = newInst("TextLabel", {
-    Size = UDim2.new(1, -40, 1, 0),
-    Position = UDim2.new(0, 30, 0, 0),
-    Text = "Ready to Farm",
-    TextColor3 = C.muted,
-    TextSize = 13,
-    Font = Enum.Font.GothamMedium,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    BackgroundTransparency = 1,
-    Parent = statusCard
-})
+local dot = Instance.new("Frame")
+dot.Size = UDim2.new(0, 8, 0, 8)
+dot.Position = UDim2.new(0, 12, 0.5, -4)
+dot.BackgroundColor3 = C.danger
+dot.Parent = statusCard
+Instance.new("UICorner", dot).CornerRadius = UDim.new(0, 100)
 
--- MONEY INFO
-local balanceLbl = newInst("TextLabel", {
-    Size = UDim2.new(0.5, -25, 0, 60),
-    Position = UDim2.new(0, 20, 0, 95),
-    Text = "$0",
-    TextColor3 = C.text,
-    TextSize = 22,
-    Font = Enum.Font.GothamBold,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    BackgroundTransparency = 1,
-    Parent = main
-})
+local statusLbl = Instance.new("TextLabel")
+statusLbl.Size = UDim2.new(1, -40, 1, 0)
+statusLbl.Position = UDim2.new(0, 30, 0, 0)
+statusLbl.Text = "System Standby"
+statusLbl.TextColor3 = C.muted
+statusLbl.TextSize = 13
+statusLbl.Font = Enum.Font.GothamMedium
+statusLbl.BackgroundTransparency = 1
+statusLbl.TextXAlignment = Enum.TextXAlignment.Left
+statusLbl.Parent = statusCard
 
-local perHourLbl = newInst("TextLabel", {
-    Size = UDim2.new(0.5, -25, 0, 60),
-    Position = UDim2.new(0.5, 5, 0, 95),
-    Text = "$0/hr",
-    TextColor3 = C.success,
-    TextSize = 22,
-    Font = Enum.Font.GothamBold,
-    TextXAlignment = Enum.TextXAlignment.Right,
-    BackgroundTransparency = 1,
-    Parent = main
-})
+-- Balance & Rate
+local bal = Instance.new("TextLabel")
+bal.Size = UDim2.new(0.5, -20, 0, 60)
+bal.Position = UDim2.new(0, 20, 0, 95)
+bal.Text = "$0"
+bal.TextColor3 = C.text
+bal.TextSize = 24
+bal.Font = Enum.Font.GothamBold
+bal.BackgroundTransparency = 1
+bal.TextXAlignment = Enum.TextXAlignment.Left
+bal.Parent = main
 
--- ACTION BUTTON
-local btn = newInst("TextButton", {
-    Size = UDim2.new(1, -40, 0, 45),
-    Position = UDim2.new(0, 20, 1, -65),
-    BackgroundColor3 = C.accent,
-    Text = "START AUTOFARM",
-    TextColor3 = Color3.new(1,1,1),
-    TextSize = 14,
-    Font = Enum.Font.GothamBold,
-    Parent = main
-})
-newInst("UICorner", { CornerRadius = UDim.new(0, 10), Parent = btn })
-local btnStroke = newInst("UIStroke", { Color = C.accent, Thickness = 2, Parent = btn })
+local rate = Instance.new("TextLabel")
+rate.Size = UDim2.new(0.5, -20, 0, 60)
+rate.Position = UDim2.new(0.5, 0, 0, 95)
+rate.Text = "$0/hr"
+rate.TextColor3 = C.success
+rate.TextSize = 20
+rate.Font = Enum.Font.GothamBold
+rate.BackgroundTransparency = 1
+rate.TextXAlignment = Enum.TextXAlignment.Right
+rate.Parent = main
 
--- EXPORT KE LOGIC
+-- Button
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(1, -40, 0, 45)
+btn.Position = UDim2.new(0, 20, 1, -65)
+btn.BackgroundColor3 = C.accent
+btn.Text = "START AUTOFARM"
+btn.TextColor3 = Color3.new(1,1,1)
+btn.Font = Enum.Font.GothamBold
+btn.Parent = main
+Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+local btnStroke = Instance.new("UIStroke", btn)
+btnStroke.Color = C.accent
+btnStroke.Thickness = 2
+
+-- Draggable logic
+local dragging, dragStart, startPos
+main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+
+-- Export to _G
 _G.AF_GUI = {
     statusText = statusLbl,
-    statusIcon = dot, -- Di Logic ini dipakai untuk warna icon
+    statusIcon = dot,
     btn = btn,
     btnStroke = btnStroke,
-    balanceLbl = balanceLbl,
-    perHourLbl = perHourLbl,
-    startPulse = function() 
+    balanceLbl = bal,
+    perHourLbl = rate,
+    C = C,
+    startPulse = function()
         dot.BackgroundColor3 = C.success
         btn.BackgroundColor3 = C.danger
         btn.Text = "STOP AUTOFARM"
     end,
-    stopPulse = function() 
+    stopPulse = function()
         dot.BackgroundColor3 = C.danger
         btn.BackgroundColor3 = C.accent
         btn.Text = "START AUTOFARM"
-    end,
-    C = C
+    end
 }
-
--- Dragging logic
-local dStart, sPos
-btn.Parent.InputBegan:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.MouseButton1 then
-        dStart = i.Position sPos = main.Position
-    end
-end)
-UIS.InputChanged:Connect(function(i)
-    if dStart and i.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = i.Position - dStart
-        main.Position = UDim2.new(sPos.X.Scale, sPos.X.Offset + delta.X, sPos.Y.Scale, sPos.Y.Offset + delta.Y)
-    end
-end)
